@@ -84,6 +84,9 @@ class SpinnakerExtensionsBundlerPlugin : Plugin<Project> {
 
     project.tasks.register(RELEASE_BUNDLE_TASK_NAME, CreatePluginInfoTask::class.java) {
       dependsOn(CHECKSUM_BUNDLE_TASK_NAME)
+      val compatibilityTest = project.tasks.findByName("compatibilityTest")
+      if (compatibilityTest != null)
+         mustRunAfter(compatibilityTest) //to ensure the order of execution, in case of these 2 unrelated tasks
       group = Plugins.GROUP
     }
   }
