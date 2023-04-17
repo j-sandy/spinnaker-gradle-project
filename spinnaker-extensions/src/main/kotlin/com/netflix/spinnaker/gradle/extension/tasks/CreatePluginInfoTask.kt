@@ -71,6 +71,8 @@ open class CreatePluginInfoTask : DefaultTask() {
       .filter { it.exists() }
       .map { PluginObjectMapper.mapper.readValue<CompatibilityTestResult>(it.readBytes()) }
 
+    println(compatibility)
+
     val pluginInfo = mapOf(
       "id" to bundleExt.pluginId,
       "description" to bundleExt.description,
