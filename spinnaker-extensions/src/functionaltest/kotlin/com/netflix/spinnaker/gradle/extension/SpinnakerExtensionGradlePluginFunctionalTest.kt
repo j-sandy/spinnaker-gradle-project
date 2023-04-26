@@ -76,16 +76,29 @@ class SpinnakerExtensionGradlePluginFunctionalTest {
         }
     """)
 
-    // Run the build
-    val runner = GradleRunner.create()
-    runner.forwardOutput()
-    runner.withPluginClasspath()
-    runner.withArguments("collectPluginZips")
-    runner.withProjectDir(projectDir)
-    val result = runner.build()
+    // Run the build with Gradle 6.x
+    val gradle6Runner = GradleRunner.create()
+      .forwardOutput()
+      .withPluginClasspath()
+      .withArguments("collectPluginZips")
+      .withGradleVersion("6.7.1")
+      .withProjectDir(projectDir)
+      .build()
 
     // Verify the result
-    assertTrue(result.output.contains("BUILD SUCCESSFUL"))
+    assertTrue(gradle6Runner.output.contains("BUILD SUCCESSFUL"))
+
+    // Run the build with Gradle 7.x
+    val gradle7Runner = GradleRunner.create()
+      .forwardOutput()
+      .withPluginClasspath()
+      .withArguments("collectPluginZips")
+      .withGradleVersion("7.6")
+      .withProjectDir(projectDir)
+      .build()
+
+    // Verify the result
+    assertTrue(gradle7Runner.output.contains("BUILD SUCCESSFUL"))
   }
 
   @Test
@@ -134,17 +147,32 @@ class SpinnakerExtensionGradlePluginFunctionalTest {
       """)
       .build()
 
-    // Run the build
-    val runner = GradleRunner.create()
-    runner.forwardOutput()
-    runner.withPluginClasspath()
-    runner.withArguments("releaseBundle")
-    runner.withProjectDir(projectDir)
-    val result = runner.build()
+    // Run the build with gradle 6.x
+    val gradle6Runner = GradleRunner.create()
+    .forwardOutput()
+    .withPluginClasspath()
+    .withArguments("releaseBundle")
+    .withGradleVersion("6.7.1")
+    .withProjectDir(projectDir)
+    .build()
 
     // Verify the result
-    assert(result.task(":releaseBundle")!!.outcome == TaskOutcome.SUCCESS)
-    assert(!result.tasks.contains(":compatibilityTest"))
+    assert(gradle6Runner.task(":releaseBundle")!!.outcome == TaskOutcome.SUCCESS)
+    assert(!gradle6Runner.tasks.contains(":compatibilityTest"))
+    assertTrue(projectDir.resolve("build/distributions").resolve("functionaltest.zip").exists())
+
+    // Run the build with gradle 7.x
+    val gradle7Runner = GradleRunner.create()
+    .forwardOutput()
+    .withPluginClasspath()
+    .withArguments("releaseBundle")
+    .withGradleVersion("7.6")
+    .withProjectDir(projectDir)
+    .build()
+
+    // Verify the result
+    assert(gradle7Runner.task(":releaseBundle")!!.outcome == TaskOutcome.SUCCESS)
+    assert(!gradle7Runner.tasks.contains(":compatibilityTest"))
     assertTrue(projectDir.resolve("build/distributions").resolve("functionaltest.zip").exists())
   }
 
@@ -156,17 +184,31 @@ class SpinnakerExtensionGradlePluginFunctionalTest {
       .withCompatibilityTestVersion(compatibilityTestVersion)
       .build()
 
-    val build = GradleRunner
+    val gradle6Runner = GradleRunner
       .create()
       .forwardOutput()
       .withPluginClasspath()
       .withArguments("compatibilityTest", "releaseBundle")
+      .withGradleVersion("6.7.1")
       .withProjectDir(File(TEST_ROOT))
       .build()
 
-    assert(build.task(":compatibilityTest")!!.outcome == TaskOutcome.SUCCESS)
-    assert(build.task(":releaseBundle")!!.outcome == TaskOutcome.SUCCESS)
-    assertTaskOrder(build, ":compatibilityTest", ":releaseBundle")
+    assert(gradle6Runner.task(":compatibilityTest")!!.outcome == TaskOutcome.SUCCESS)
+    assert(gradle6Runner.task(":releaseBundle")!!.outcome == TaskOutcome.SUCCESS)
+    assertTaskOrder(gradle6Runner, ":compatibilityTest", ":releaseBundle")
+ 
+    val gradle7Runner = GradleRunner
+      .create()
+      .forwardOutput()
+      .withPluginClasspath()
+      .withArguments("compatibilityTest", "releaseBundle")
+      .withGradleVersion("7.6")
+      .withProjectDir(File(TEST_ROOT))
+      .build()
+
+    assert(gradle7Runner.task(":compatibilityTest")!!.outcome == TaskOutcome.SUCCESS)
+    assert(gradle7Runner.task(":releaseBundle")!!.outcome == TaskOutcome.SUCCESS)
+    assertTaskOrder(gradle7Runner, ":compatibilityTest", ":releaseBundle")
     val distributions = File(TEST_ROOT).resolve("build/distributions")
     assertTrue(distributions.resolve("functionaltest.zip").exists())
     val pluginInfo = distributions.resolve("plugin-info.json").readText()
@@ -210,16 +252,29 @@ class SpinnakerExtensionGradlePluginFunctionalTest {
       """)
       .build()
 
-    val build = GradleRunner
+    val gradle6Runner = GradleRunner
       .create()
       .forwardOutput()
       .withPluginClasspath()
       .withArguments("compatibilityTest", "releaseBundle")
+      .withGradleVersion("6.7.1")
       .withProjectDir(File(TEST_ROOT))
       .buildAndFail()
 
-    assert(build.task(":compatibilityTest")!!.outcome == TaskOutcome.FAILED)
-    assert(!build.tasks.contains(":releaseBundle"))
+    assert(gradle6Runner.task(":compatibilityTest")!!.outcome == TaskOutcome.FAILED)
+    assert(!gradle6Runner.tasks.contains(":releaseBundle"))
+
+    val gradle7Runner = GradleRunner
+      .create()
+      .forwardOutput()
+      .withPluginClasspath()
+      .withArguments("compatibilityTest", "releaseBundle")
+      .withGradleVersion("7.6")
+      .withProjectDir(File(TEST_ROOT))
+      .buildAndFail()
+
+    assert(gradle7Runner.task(":compatibilityTest")!!.outcome == TaskOutcome.FAILED)
+    assert(!gradle7Runner.tasks.contains(":releaseBundle"))
   }
 
   @Test
@@ -259,17 +314,31 @@ class SpinnakerExtensionGradlePluginFunctionalTest {
       """)
       .build()
 
-    val build = GradleRunner
+    val gradle6Runner = GradleRunner
       .create()
       .forwardOutput()
       .withPluginClasspath()
       .withArguments("compatibilityTest", "releaseBundle")
+      .withGradleVersion("6.7.1")
       .withProjectDir(File(TEST_ROOT))
       .build()
 
-    assert(build.task(":compatibilityTest")!!.outcome == TaskOutcome.SUCCESS)
-    assert(build.task(":releaseBundle")!!.outcome == TaskOutcome.SUCCESS)
-    assertTaskOrder(build, ":compatibilityTest", ":releaseBundle")
+    assert(gradle6Runner.task(":compatibilityTest")!!.outcome == TaskOutcome.SUCCESS)
+    assert(gradle6Runner.task(":releaseBundle")!!.outcome == TaskOutcome.SUCCESS)
+    assertTaskOrder(gradle6Runner, ":compatibilityTest", ":releaseBundle")
+
+    val gradle7Runner = GradleRunner
+      .create()
+      .forwardOutput()
+      .withPluginClasspath()
+      .withArguments("compatibilityTest", "releaseBundle")
+      .withGradleVersion("7.6")
+      .withProjectDir(File(TEST_ROOT))
+      .build()
+
+    assert(gradle7Runner.task(":compatibilityTest")!!.outcome == TaskOutcome.SUCCESS)
+    assert(gradle7Runner.task(":releaseBundle")!!.outcome == TaskOutcome.SUCCESS)
+    assertTaskOrder(gradle7Runner, ":compatibilityTest", ":releaseBundle")
     val pluginInfo = File(TEST_ROOT).resolve("build/distributions/plugin-info.json").readText()
     listOf(
       """
